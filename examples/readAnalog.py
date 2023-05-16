@@ -3,7 +3,6 @@
 #
 # AUTHOR:  Renzo Mischianti
 # Website: www.mischianti.org
-# VERSION: 0.0.1
 #
 # Description:
 # This script read one channel for time of pcf8591

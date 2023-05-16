@@ -3,7 +3,7 @@
 #
 # AUTHOR:  Renzo Mischianti
 # Website: www.mischianti.org
-# VERSION: 0.0.1
+# VERSION: 0.0.2
 #
 #
 # Porting of PCF8591 library for Arduino
@@ -93,6 +93,7 @@ class PCF8591:
     OUTPUT_MASK = 0b01000000
 
     def __init__(self, address, i2c=None, i2c_id=0, sda=None, scl=None):
+        self._last_operation = None
         if i2c:
             self._i2c = i2c
         elif sda and scl:
@@ -110,24 +111,46 @@ class PCF8591:
         else:
             return True
 
+    def _get_operation(self, auto_increment=False, channel=AIN0, read_type=SINGLE_ENDED_INPUT):
+        # print('auto_increment: {}, channel: {}, read_type: {}, self._output_status {}'.format(auto_increment, channel, read_type, self._output_status))
+        return 0 | (self._output_status & self.OUTPUT_MASK) | read_type | \
+                                                                (self.AUTOINCREMENT_READ if auto_increment else 0) | \
+                                                                channel
+
+    def _write_operation(self, operation):
+        if operation != self._last_operation:
+            self._i2c.writeto(self._address, bytearray([operation]))
+            utime.sleep_ms(1)
+            self._i2c.readfrom(self._address, 1)
+            self._last_operation = operation
+
     def analog_read_all(self, read_type=SINGLE_ENDED_INPUT):
-        operation = self.AUTOINCREMENT_READ | read_type | (self._output_status & self.OUTPUT_MASK)
-        self._i2c.writeto(self._address, bytearray([operation]))
-        utime.sleep_ms(1)
-        # data = self._i2c.readfrom(self._address, 5)
+        # operation = self.AUTOINCREMENT_READ | read_type | (self._output_status & self.OUTPUT_MASK)
+        # operation = self.AUTOINCREMENT_READ | self.OUTPUT_MASK
+        # self._i2c.writeto(self._address, bytearray([operation]))
+        # utime.sleep_ms(1)
+        # self._i2c.readfrom(self._address, 1)
+
+        self._output_status = self.ENABLE_OUTPUT
+        operation = self._get_operation(auto_increment=True)
+        self._write_operation(operation)
+
+        # data = self._i2c.readfrom(self._address, 4)
         data = []
-        self._i2c.readfrom(self._address, 1)
         data.append(int.from_bytes(self._i2c.readfrom(self._address, 1), 'big'))
         data.append(int.from_bytes(self._i2c.readfrom(self._address, 1), 'big'))
         data.append(int.from_bytes(self._i2c.readfrom(self._address, 1), 'big'))
         data.append(int.from_bytes(self._i2c.readfrom(self._address, 1), 'big'))
 
-        return data[0], data[1], data[2], data[3]
+        return int(data[0]), int(data[1]), int(data[2]), int(data[3])
 
     def analog_read(self, channel, read_type=SINGLE_ENDED_INPUT):
-        operation = channel | read_type | (self._output_status & self.OUTPUT_MASK)
-        self._i2c.writeto(self._address, bytearray([operation]))
-        utime.sleep_ms(1)
+        # operation = channel | read_type | (self._output_status & self.OUTPUT_MASK)
+        # self._i2c.writeto(self._address, bytearray([operation]))
+        # utime.sleep_ms(1)
+        operation = self._get_operation(auto_increment=False, channel=channel, read_type=read_type)
+        self._write_operation(operation)
+
         data = self._i2c.readfrom(self._address, 2)
         return data[1]
 

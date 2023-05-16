@@ -3,7 +3,6 @@
 #
 # AUTHOR:  Renzo Mischianti
 # Website: www.mischianti.org
-# VERSION: 0.0.1
 #
 # Description:
 # This script write an analog value on OUT of pcf8591
