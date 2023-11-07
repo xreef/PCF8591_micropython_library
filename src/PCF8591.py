@@ -3,7 +3,7 @@
 #
 # AUTHOR:  Renzo Mischianti
 # Website: www.mischianti.org
-# VERSION: 0.0.2
+# VERSION: 0.0.3
 #
 #
 # Porting of PCF8591 library for Arduino
@@ -37,6 +37,28 @@
 # AOUT: Analog output
 # VDD: Power supply
 #
+# 7 6 5 4 3 2 1 0
+# 0 X X X 0 X X X
+#   | | |   | | |
+#   A B B   C D D
+#
+# 0 1 0 0 0 1 0 0
+#
+# A 0 D/A inactive
+#   1 D/A active
+#
+# B 00 single ended inputs
+#   01 differential inputs
+#   10 single ended and differential
+#   11 two differential inputs
+#
+# C 0 no auto inc
+#   1 auto inc
+#
+# D 00 select channel 0
+#   01 select channel 1
+#   10 select channel 2
+#   11 select channel 3
 #
 # The MIT License (MIT)
 #
@@ -103,6 +125,7 @@ class PCF8591:
 
         self._address = address
         self._output_status = self.DISABLE_OUTPUT  # default
+        # self._output_status = self.ENABLE_OUTPUT  # default
 
     def begin(self):
         if self._i2c.scan().count(self._address) == 0:
@@ -119,6 +142,9 @@ class PCF8591:
 
     def _write_operation(self, operation):
         if operation != self._last_operation:
+            # print('operation: {}'.format(bin(operation) if operation is not None else 'None'))
+            # print('_last_operation: {}'.format(bin(self._last_operation) if self._last_operation else 'None'))
+
             self._i2c.writeto(self._address, bytearray([operation]))
             utime.sleep_ms(1)
             self._i2c.readfrom(self._address, 1)
@@ -144,15 +170,16 @@ class PCF8591:
 
         return int(data[0]), int(data[1]), int(data[2]), int(data[3])
 
-    def analog_read(self, channel, read_type=SINGLE_ENDED_INPUT):
+    def analog_read(self, channel, read_type=SINGLE_ENDED_INPUT) :
         # operation = channel | read_type | (self._output_status & self.OUTPUT_MASK)
         # self._i2c.writeto(self._address, bytearray([operation]))
         # utime.sleep_ms(1)
+        # self._output_status = self.DISABLE_OUTPUT
         operation = self._get_operation(auto_increment=False, channel=channel, read_type=read_type)
         self._write_operation(operation)
 
         data = self._i2c.readfrom(self._address, 2)
-        return data[1]
+        return data[0] if self._output_status == self.ENABLE_OUTPUT else data[1]
 
     def voltage_read(self, channel, reference_voltage=3.3):
         voltage_ref = reference_voltage
@@ -168,7 +195,7 @@ class PCF8591:
             Exception('Value must be between 0 and 255')
 
         self._output_status = self.ENABLE_OUTPUT
-
+        self._last_operation = None
         self._i2c.writeto(self._address, bytearray([self.ENABLE_OUTPUT, value]))
 
     def disable_output(self):

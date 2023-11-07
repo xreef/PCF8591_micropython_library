@@ -15,6 +15,7 @@
 ### MicroPython Library to use i2c analog IC with arduino and esp8266. Can read analog value and write analog value with only 2 wire (perfect for ESP-01).
 
 #### Changelog
+ - 07/11/2023: v0.0.3 Fix on read when write is active and running [#Forum](https://mischianti.org/forums/topic/micropython-i2c-pcf8591-round-value-problem-raspberry-pi-pico/#post-28043)
  - 16/05/2023: v0.0.2 Minor fix on read and write [#Forum](https://www.mischianti.org/forums/topic/micropython-i2c-pcf8591-round-value-problem-raspberry-pi-pico/)
  - 18/04/2023: v0.0.1 Initial commit of stable version.
 

@@ -45,7 +45,10 @@ import utime
 from PCF8591 import PCF8591 
 
 # Initialize the I2C bus
-i2c = I2C(0, scl=Pin(22), sda=Pin(21))  # Adjust the pins and frequency as needed for your board
+# ESP32
+# i2c = I2C(0, scl=Pin(22), sda=Pin(21))  # Adjust the pins and frequency as needed for your board
+# Raspberry Pi Pico
+i2c = I2C(0, scl=Pin(5), sda=Pin(4))  # Adjust the pins and frequency as needed for your board
 
 # Initialize the PCF8591
 pcf8591 = PCF8591(0x48, i2c)  # Adjust the address if needed

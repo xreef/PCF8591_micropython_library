@@ -6,7 +6,7 @@ setup(
     name="pcf8591-library",
     package_dir={'': 'src'},
     py_modules=["PCF8591"],
-    version="0.0.2",
+    version="0.0.3",
     description="PCF8591, library for Arduino, Raspberry Pi Pico and rp2040 boards, esp32, SMT32 and ESP8266",
     long_description="Library to use pcf8591 i2c analog IC with Arduino, Raspberry Pi Pico and rp2040 boards, esp32, SMT32 and ESP8266. Can read analog value and write analog value with only 2 wire. ",
     keywords="micropython, digital, i2c, expander, pcf8591, pcf8591a, esp32, esp8266, stm32, SAMD, Arduino, wire, rp2040, Raspberry",
