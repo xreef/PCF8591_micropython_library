@@ -1,0 +1,7 @@
+{
+  "urls": [
+    ["PCF8591.py", "github:playfultechnology/PCF8591_micropython_library/src/PCF8591.py"]
+  ],
+  "version": "1.0.0",
+  "deps": []
+}
